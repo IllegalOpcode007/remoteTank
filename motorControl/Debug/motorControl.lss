@@ -1,0 +1,354 @@
+
+motorControl.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000182  00000000  00000000  00000074  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         0000005a  00800060  00000182  000001f6  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .comment      00000030  00000000  00000000  00000250  2**0
+                  CONTENTS, READONLY
+  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000280  2**2
+                  CONTENTS, READONLY
+  4 .debug_aranges 00000070  00000000  00000000  000002bc  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_info   000007ff  00000000  00000000  0000032c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_abbrev 000005f7  00000000  00000000  00000b2b  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_line   000003a2  00000000  00000000  00001122  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_frame  000000d0  00000000  00000000  000014c4  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_str    00000361  00000000  00000000  00001594  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_loc    000000c0  00000000  00000000  000018f5  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_ranges 00000060  00000000  00000000  000019b5  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	0c 94 2a 00 	jmp	0x54	; 0x54 <__ctors_end>
+   4:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+   8:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+   c:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  10:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  14:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  18:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  1c:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  20:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  24:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  28:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  2c:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  30:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  34:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  38:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  3c:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  40:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  44:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  48:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  4c:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  50:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+
+00000054 <__ctors_end>:
+  54:	11 24       	eor	r1, r1
+  56:	1f be       	out	0x3f, r1	; 63
+  58:	cf e5       	ldi	r28, 0x5F	; 95
+  5a:	d8 e0       	ldi	r29, 0x08	; 8
+  5c:	de bf       	out	0x3e, r29	; 62
+  5e:	cd bf       	out	0x3d, r28	; 61
+
+00000060 <__do_copy_data>:
+  60:	10 e0       	ldi	r17, 0x00	; 0
+  62:	a0 e6       	ldi	r26, 0x60	; 96
+  64:	b0 e0       	ldi	r27, 0x00	; 0
+  66:	e2 e8       	ldi	r30, 0x82	; 130
+  68:	f1 e0       	ldi	r31, 0x01	; 1
+  6a:	02 c0       	rjmp	.+4      	; 0x70 <__do_copy_data+0x10>
+  6c:	05 90       	lpm	r0, Z+
+  6e:	0d 92       	st	X+, r0
+  70:	aa 3b       	cpi	r26, 0xBA	; 186
+  72:	b1 07       	cpc	r27, r17
+  74:	d9 f7       	brne	.-10     	; 0x6c <__do_copy_data+0xc>
+  76:	0e 94 88 00 	call	0x110	; 0x110 <main>
+  7a:	0c 94 bf 00 	jmp	0x17e	; 0x17e <_exit>
+
+0000007e <__bad_interrupt>:
+  7e:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
+
+00000082 <USARTInit>:
+void USARTInit()
+{
+   //Set Baud rate
+   UBRRL = BAUD_PRESCALE;
+  82:	87 e6       	ldi	r24, 0x67	; 103
+  84:	89 b9       	out	0x09, r24	; 9
+   UBRRH = (BAUD_PRESCALE>>8);
+  86:	10 bc       	out	0x20, r1	; 32
+UCSRA &= ~(_BV(U2X));
+#endif
+UCSRC= _BV(UCSZ1) | _BV(UCSZ0); // 8-bit data
+*/ 
+
+	UCSRC=(1<<URSEL)|(3<<UCSZ0); // original 
+  88:	86 e8       	ldi	r24, 0x86	; 134
+  8a:	80 bd       	out	0x20, r24	; 32
+
+	//Enable The receiver and transmitter
+	UCSRB=(1<<RXEN)|(1<<TXEN);
+  8c:	88 e1       	ldi	r24, 0x18	; 24
+  8e:	8a b9       	out	0x0a, r24	; 10
+  90:	08 95       	ret
+
+00000092 <USARTReadChar>:
+}
+
+char USARTReadChar()
+{
+	while(!(UCSRA & (1<<RXC)))
+  92:	5f 9b       	sbis	0x0b, 7	; 11
+  94:	fe cf       	rjmp	.-4      	; 0x92 <USARTReadChar>
+	{
+		//Do nothing
+	}
+	return UDR;
+  96:	8c b1       	in	r24, 0x0c	; 12
+}
+  98:	08 95       	ret
+
+0000009a <USARTWriteChar>:
+
+void USARTWriteChar(char data)
+{
+	while(!(UCSRA & (1<<UDRE)))
+  9a:	5d 9b       	sbis	0x0b, 5	; 11
+  9c:	fe cf       	rjmp	.-4      	; 0x9a <USARTWriteChar>
+	{
+		//Do nothing
+	}
+	UDR = data;
+  9e:	8c b9       	out	0x0c, r24	; 12
+  a0:	08 95       	ret
+
+000000a2 <USART_putstring>:
+}
+
+void USART_putstring(char* StringPtr){
+  a2:	cf 93       	push	r28
+  a4:	df 93       	push	r29
+  a6:	ec 01       	movw	r28, r24
+	
+	while(*StringPtr != 0x00)
+  a8:	88 81       	ld	r24, Y
+  aa:	88 23       	and	r24, r24
+  ac:	31 f0       	breq	.+12     	; 0xba <USART_putstring+0x18>
+  ae:	21 96       	adiw	r28, 0x01	; 1
+	{
+		USARTWriteChar(*StringPtr);
+  b0:	0e 94 4d 00 	call	0x9a	; 0x9a <USARTWriteChar>
+	UDR = data;
+}
+
+void USART_putstring(char* StringPtr){
+	
+	while(*StringPtr != 0x00)
+  b4:	89 91       	ld	r24, Y+
+  b6:	81 11       	cpse	r24, r1
+  b8:	fb cf       	rjmp	.-10     	; 0xb0 <USART_putstring+0xe>
+	{
+		USARTWriteChar(*StringPtr);
+		StringPtr++;
+	}
+  ba:	df 91       	pop	r29
+  bc:	cf 91       	pop	r28
+  be:	08 95       	ret
+
+000000c0 <setup>:
+
+
+void setup(void)
+{
+	/* DDRx (Data Direction Register) Configures data direction of port pins 8 */ 
+	DDRB = 0b00001000; // Make pin 3 of Port B an output pin 
+  c0:	88 e0       	ldi	r24, 0x08	; 8
+  c2:	87 bb       	out	0x17, r24	; 23
+	DDRC = 0b00000011; // Make pin 0 and pin 1 of Port C an output pin
+  c4:	83 e0       	ldi	r24, 0x03	; 3
+  c6:	84 bb       	out	0x14, r24	; 20
+	DDRD = 0b10000011; // Make pin 7 (motor), pin 1 (TX) of Port D, pin0 (RX) an output pin
+  c8:	83 e8       	ldi	r24, 0x83	; 131
+  ca:	81 bb       	out	0x11, r24	; 17
+    PORTD |= (1 << PIND0);  // activating the pull-up resistor for the RX pin (need this for sure otherwise no Serial communciation possible.... cannot send rx)
+  cc:	90 9a       	sbi	0x12, 0	; 18
+	OSCCAL = 0xAA; // Oscillator Calibration
+  ce:	8a ea       	ldi	r24, 0xAA	; 170
+  d0:	81 bf       	out	0x31, r24	; 49
+  d2:	08 95       	ret
+
+000000d4 <forward>:
+}
+
+
+void forward()
+{
+	PORTC = 0b00000001; // right forward
+  d4:	81 e0       	ldi	r24, 0x01	; 1
+  d6:	85 bb       	out	0x15, r24	; 21
+	PORTB = 0b00001000; // left forward
+  d8:	88 e0       	ldi	r24, 0x08	; 8
+  da:	88 bb       	out	0x18, r24	; 24
+	PORTD = 0b00000011; // left backward clear
+  dc:	83 e0       	ldi	r24, 0x03	; 3
+  de:	82 bb       	out	0x12, r24	; 18
+  e0:	08 95       	ret
+
+000000e2 <reverse>:
+}
+
+void reverse()
+{
+	PORTC = 0b00000110; // right backwards
+  e2:	86 e0       	ldi	r24, 0x06	; 6
+  e4:	85 bb       	out	0x15, r24	; 21
+	PORTB = 0b00000000; // left forward clear
+  e6:	18 ba       	out	0x18, r1	; 24
+	PORTD = 0b10000011; // left backwards	
+  e8:	83 e8       	ldi	r24, 0x83	; 131
+  ea:	82 bb       	out	0x12, r24	; 18
+  ec:	08 95       	ret
+
+000000ee <right>:
+}
+
+void right()
+{
+	PORTB = 0b00001000; // left forward
+  ee:	88 e0       	ldi	r24, 0x08	; 8
+  f0:	88 bb       	out	0x18, r24	; 24
+	PORTC = 0b00000000;
+  f2:	15 ba       	out	0x15, r1	; 21
+	PORTD = 0b00000011;
+  f4:	83 e0       	ldi	r24, 0x03	; 3
+  f6:	82 bb       	out	0x12, r24	; 18
+  f8:	08 95       	ret
+
+000000fa <left>:
+}
+
+void left()
+{
+	PORTC = 0b00000001; // right forward
+  fa:	81 e0       	ldi	r24, 0x01	; 1
+  fc:	85 bb       	out	0x15, r24	; 21
+	PORTB = 0b00000000; // left forward clear
+  fe:	18 ba       	out	0x18, r1	; 24
+	PORTD = 0b00000011;
+ 100:	83 e0       	ldi	r24, 0x03	; 3
+ 102:	82 bb       	out	0x12, r24	; 18
+ 104:	08 95       	ret
+
+00000106 <brake>:
+}
+
+void brake()
+{
+	PORTC = 0b00000000;
+ 106:	15 ba       	out	0x15, r1	; 21
+	PORTB = 0b00000000;
+ 108:	18 ba       	out	0x18, r1	; 24
+	PORTD = 0b00000011;
+ 10a:	83 e0       	ldi	r24, 0x03	; 3
+ 10c:	82 bb       	out	0x12, r24	; 18
+ 10e:	08 95       	ret
+
+00000110 <main>:
+
+
+
+int main(void)
+{
+	USARTInit(BAUD_PRESCALE); 
+ 110:	67 e6       	ldi	r22, 0x67	; 103
+ 112:	70 e0       	ldi	r23, 0x00	; 0
+ 114:	80 e0       	ldi	r24, 0x00	; 0
+ 116:	90 e0       	ldi	r25, 0x00	; 0
+ 118:	0e 94 41 00 	call	0x82	; 0x82 <USARTInit>
+	char data;
+    setup();
+ 11c:	0e 94 60 00 	call	0xc0	; 0xc0 <setup>
+/* Loop Infinitely */ 
+    while (1) 
+    {
+		//PORTC = 0b00000100; // "break point" 
+		//_delay_ms(1000)
+		data = USARTReadChar(); // does not go to next line unless input taken in
+ 120:	0e 94 49 00 	call	0x92	; 0x92 <USARTReadChar>
+		
+		if (data == keyControl.forward)
+ 124:	87 37       	cpi	r24, 0x77	; 119
+ 126:	39 f4       	brne	.+14     	; 0x136 <main+0x26>
+		{
+			USART_putstring("Moving Forward...\r\n");
+ 128:	80 e6       	ldi	r24, 0x60	; 96
+ 12a:	90 e0       	ldi	r25, 0x00	; 0
+ 12c:	0e 94 51 00 	call	0xa2	; 0xa2 <USART_putstring>
+			forward();
+ 130:	0e 94 6a 00 	call	0xd4	; 0xd4 <forward>
+ 134:	f5 cf       	rjmp	.-22     	; 0x120 <main+0x10>
+		}
+		else if (data == keyControl.reverse)
+ 136:	83 37       	cpi	r24, 0x73	; 115
+ 138:	39 f4       	brne	.+14     	; 0x148 <main+0x38>
+		{
+			USART_putstring("Moving Reverse...\r\n");
+ 13a:	84 e7       	ldi	r24, 0x74	; 116
+ 13c:	90 e0       	ldi	r25, 0x00	; 0
+ 13e:	0e 94 51 00 	call	0xa2	; 0xa2 <USART_putstring>
+			reverse();
+ 142:	0e 94 71 00 	call	0xe2	; 0xe2 <reverse>
+ 146:	ec cf       	rjmp	.-40     	; 0x120 <main+0x10>
+		}
+		else if (data == keyControl.right)
+ 148:	84 36       	cpi	r24, 0x64	; 100
+ 14a:	39 f4       	brne	.+14     	; 0x15a <main+0x4a>
+		{
+			USART_putstring("Moving Right...\r\n");
+ 14c:	88 e8       	ldi	r24, 0x88	; 136
+ 14e:	90 e0       	ldi	r25, 0x00	; 0
+ 150:	0e 94 51 00 	call	0xa2	; 0xa2 <USART_putstring>
+			right(); 
+ 154:	0e 94 77 00 	call	0xee	; 0xee <right>
+ 158:	e3 cf       	rjmp	.-58     	; 0x120 <main+0x10>
+		}
+		else if (data == keyControl.left)
+ 15a:	81 36       	cpi	r24, 0x61	; 97
+ 15c:	39 f4       	brne	.+14     	; 0x16c <main+0x5c>
+		{
+			USART_putstring("Moving Left...\r\n");
+ 15e:	8a e9       	ldi	r24, 0x9A	; 154
+ 160:	90 e0       	ldi	r25, 0x00	; 0
+ 162:	0e 94 51 00 	call	0xa2	; 0xa2 <USART_putstring>
+			left(); 
+ 166:	0e 94 7d 00 	call	0xfa	; 0xfa <left>
+ 16a:	da cf       	rjmp	.-76     	; 0x120 <main+0x10>
+		}
+		else if (data == keyControl.brake)
+ 16c:	88 37       	cpi	r24, 0x78	; 120
+ 16e:	c1 f6       	brne	.-80     	; 0x120 <main+0x10>
+		{
+			USART_putstring("Stopping...\r\n");
+ 170:	8b ea       	ldi	r24, 0xAB	; 171
+ 172:	90 e0       	ldi	r25, 0x00	; 0
+ 174:	0e 94 51 00 	call	0xa2	; 0xa2 <USART_putstring>
+			brake(); 
+ 178:	0e 94 83 00 	call	0x106	; 0x106 <brake>
+ 17c:	d1 cf       	rjmp	.-94     	; 0x120 <main+0x10>
+
+0000017e <_exit>:
+ 17e:	f8 94       	cli
+
+00000180 <__stop_program>:
+ 180:	ff cf       	rjmp	.-2      	; 0x180 <__stop_program>
