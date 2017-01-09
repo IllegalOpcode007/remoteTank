@@ -12,6 +12,7 @@
 
 #include <avr/io.h>
 #include <util/delay.h>
+#include <avr/eeprom.h>
 #include "usart.h"
 #include "control.h"
 #include "pushButton.h"
@@ -34,7 +35,7 @@ int main(void)
 	USARTInit(BAUD_PRESCALE); 
 	char data = ' ';
     setup();
-	USART_putstring("Hello!\r\n");
+	USART_putstring("Hello!\r\n");	
 
 	/* Button State */
 	uint8_t buttonWasPressed = 0;
@@ -96,7 +97,9 @@ int main(void)
 				{
 					buttonWasPressed = 1; 
 					PORTB = (1<<PB0)|(1<<PB1); // need to keep port 0 high since pulled-up for push button 
-					pressCount++; 
+					pressCount = eeprom_read_byte((uint8_t*)46); // read from memory
+					pressCount++; // increment button count
+					eeprom_write_byte((uint8_t*)46, pressCount); // write to memory
 					sprintf(pressCountChar, "Button Pressed %d times...\r\n", pressCount);
 					USART_putstring(pressCountChar); 
 				}
