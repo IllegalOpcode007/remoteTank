@@ -8,7 +8,7 @@
 #define F_CPU 16000000UL
 #define USART_BAUDRATE 9600
 #define BAUD_PRESCALE (((F_CPU / (USART_BAUDRATE * 16UL))) - 1)
-#define buttonAvl 1
+#define buttonAvl 0
 
 #include <avr/io.h>
 #include <util/delay.h>
@@ -33,7 +33,8 @@ void setup(void)
 int main(void)
 {
 	USARTInit(BAUD_PRESCALE); 
-	char data = ' ';
+	char data; //' '; uncomment when using pushbutton 
+	
     setup();
 	USART_putstring("Hello!\r\n");	
 
@@ -55,9 +56,11 @@ int main(void)
     {
 		//PORTC = 0b00000100; // "break point" 
 		//_delay_ms(1000)
+		
 	
 		if(!buttonAvl)
 		{
+			data = USARTReadChar();  // does not go to next line unless input take in
 			if (data == keyControl.forward)
 			{
 				USART_putstring("Moving Forward...\r\n");
