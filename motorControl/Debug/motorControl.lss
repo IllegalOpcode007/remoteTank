@@ -3,29 +3,29 @@ motorControl.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         00000252  00000000  00000000  00000074  2**1
+  0 .text         00000280  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .data         00000062  00800060  00000252  000002c6  2**0
+  1 .data         00000076  00800060  00000280  000002f4  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  2 .comment      00000030  00000000  00000000  00000328  2**0
+  2 .comment      00000030  00000000  00000000  0000036a  2**0
                   CONTENTS, READONLY
-  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000358  2**2
+  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  0000039c  2**2
                   CONTENTS, READONLY
-  4 .debug_aranges 00000058  00000000  00000000  00000394  2**0
+  4 .debug_aranges 00000060  00000000  00000000  000003d8  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   00000909  00000000  00000000  000003ec  2**0
+  5 .debug_info   000009a2  00000000  00000000  00000438  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 000006a9  00000000  00000000  00000cf5  2**0
+  6 .debug_abbrev 000006c3  00000000  00000000  00000dda  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   0000045a  00000000  00000000  0000139e  2**0
+  7 .debug_line   000004ab  00000000  00000000  0000149d  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  000000c0  00000000  00000000  000017f8  2**2
+  8 .debug_frame  000000d0  00000000  00000000  00001948  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    000003fd  00000000  00000000  000018b8  2**0
+  9 .debug_str    00000430  00000000  00000000  00001a18  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    0000023f  00000000  00000000  00001cb5  2**0
+ 10 .debug_loc    0000029f  00000000  00000000  00001e48  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00000048  00000000  00000000  00001ef4  2**0
+ 11 .debug_ranges 00000050  00000000  00000000  000020e7  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -65,16 +65,16 @@ Disassembly of section .text:
   60:	10 e0       	ldi	r17, 0x00	; 0
   62:	a0 e6       	ldi	r26, 0x60	; 96
   64:	b0 e0       	ldi	r27, 0x00	; 0
-  66:	e2 e5       	ldi	r30, 0x52	; 82
+  66:	e0 e8       	ldi	r30, 0x80	; 128
   68:	f2 e0       	ldi	r31, 0x02	; 2
   6a:	02 c0       	rjmp	.+4      	; 0x70 <__do_copy_data+0x10>
   6c:	05 90       	lpm	r0, Z+
   6e:	0d 92       	st	X+, r0
-  70:	a2 3c       	cpi	r26, 0xC2	; 194
+  70:	a6 3d       	cpi	r26, 0xD6	; 214
   72:	b1 07       	cpc	r27, r17
   74:	d9 f7       	brne	.-10     	; 0x6c <__do_copy_data+0xc>
-  76:	0e 94 b1 00 	call	0x162	; 0x162 <main>
-  7a:	0c 94 27 01 	jmp	0x24e	; 0x24e <_exit>
+  76:	0e 94 bf 00 	call	0x17e	; 0x17e <main>
+  7a:	0c 94 3e 01 	jmp	0x27c	; 0x27c <_exit>
 
 0000007e <__bad_interrupt>:
   7e:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
@@ -94,288 +94,313 @@ Disassembly of section .text:
   8e:	8a b9       	out	0x0a, r24	; 10
   90:	08 95       	ret
 
-00000092 <USARTReadChar>:
-  92:	5f 9b       	sbis	0x0b, 7	; 11
-  94:	fe cf       	rjmp	.-4      	; 0x92 <USARTReadChar>
-  96:	8c b1       	in	r24, 0x0c	; 12
+00000092 <USARTWriteChar>:
+  92:	5d 9b       	sbis	0x0b, 5	; 11
+  94:	fe cf       	rjmp	.-4      	; 0x92 <USARTWriteChar>
+  96:	8c b9       	out	0x0c, r24	; 12
   98:	08 95       	ret
 
-0000009a <USARTWriteChar>:
-  9a:	5d 9b       	sbis	0x0b, 5	; 11
-  9c:	fe cf       	rjmp	.-4      	; 0x9a <USARTWriteChar>
-  9e:	8c b9       	out	0x0c, r24	; 12
-  a0:	08 95       	ret
+0000009a <USART_putstring>:
+  9a:	cf 93       	push	r28
+  9c:	df 93       	push	r29
+  9e:	ec 01       	movw	r28, r24
+  a0:	88 81       	ld	r24, Y
+  a2:	88 23       	and	r24, r24
+  a4:	31 f0       	breq	.+12     	; 0xb2 <USART_putstring+0x18>
+  a6:	21 96       	adiw	r28, 0x01	; 1
+  a8:	0e 94 49 00 	call	0x92	; 0x92 <USARTWriteChar>
+  ac:	89 91       	ld	r24, Y+
+  ae:	81 11       	cpse	r24, r1
+  b0:	fb cf       	rjmp	.-10     	; 0xa8 <USART_putstring+0xe>
+  b2:	df 91       	pop	r29
+  b4:	cf 91       	pop	r28
+  b6:	08 95       	ret
 
-000000a2 <USART_putstring>:
-  a2:	cf 93       	push	r28
-  a4:	df 93       	push	r29
-  a6:	ec 01       	movw	r28, r24
-  a8:	88 81       	ld	r24, Y
-  aa:	88 23       	and	r24, r24
-  ac:	31 f0       	breq	.+12     	; 0xba <USART_putstring+0x18>
-  ae:	21 96       	adiw	r28, 0x01	; 1
-  b0:	0e 94 4d 00 	call	0x9a	; 0x9a <USARTWriteChar>
-  b4:	89 91       	ld	r24, Y+
-  b6:	81 11       	cpse	r24, r1
-  b8:	fb cf       	rjmp	.-10     	; 0xb0 <USART_putstring+0xe>
-  ba:	df 91       	pop	r29
-  bc:	cf 91       	pop	r28
-  be:	08 95       	ret
+000000b8 <USARTReadCharWithTimeout>:
+  b8:	5f 99       	sbic	0x0b, 7	; 11
+  ba:	07 c0       	rjmp	.+14     	; 0xca <USARTReadCharWithTimeout+0x12>
+  bc:	61 50       	subi	r22, 0x01	; 1
+  be:	71 09       	sbc	r23, r1
+  c0:	81 09       	sbc	r24, r1
+  c2:	91 09       	sbc	r25, r1
+  c4:	c9 f7       	brne	.-14     	; 0xb8 <USARTReadCharWithTimeout>
+  c6:	80 e0       	ldi	r24, 0x00	; 0
+  c8:	08 95       	ret
+  ca:	67 2b       	or	r22, r23
+  cc:	68 2b       	or	r22, r24
+  ce:	69 2b       	or	r22, r25
+  d0:	11 f0       	breq	.+4      	; 0xd6 <USARTReadCharWithTimeout+0x1e>
+  d2:	8c b1       	in	r24, 0x0c	; 12
+  d4:	08 95       	ret
+  d6:	80 e0       	ldi	r24, 0x00	; 0
+  d8:	08 95       	ret
 
-000000c0 <motorControl>:
-  c0:	cf 93       	push	r28
-  c2:	df 93       	push	r29
-  c4:	00 d0       	rcall	.+0      	; 0xc6 <motorControl+0x6>
-  c6:	00 d0       	rcall	.+0      	; 0xc8 <motorControl+0x8>
-  c8:	1f 92       	push	r1
-  ca:	cd b7       	in	r28, 0x3d	; 61
-  cc:	de b7       	in	r29, 0x3e	; 62
-  ce:	3a 83       	std	Y+2, r19	; 0x02
-  d0:	4b 83       	std	Y+3, r20	; 0x03
-  d2:	5c 83       	std	Y+4, r21	; 0x04
-  d4:	6d 83       	std	Y+5, r22	; 0x05
-  d6:	28 13       	cpse	r18, r24
-  d8:	07 c0       	rjmp	.+14     	; 0xe8 <motorControl+0x28>
-  da:	88 e0       	ldi	r24, 0x08	; 8
-  dc:	88 bb       	out	0x18, r24	; 24
-  de:	81 e0       	ldi	r24, 0x01	; 1
-  e0:	85 bb       	out	0x15, r24	; 21
-  e2:	83 e0       	ldi	r24, 0x03	; 3
-  e4:	82 bb       	out	0x12, r24	; 18
-  e6:	26 c0       	rjmp	.+76     	; 0x134 <motorControl+0x74>
-  e8:	9a 81       	ldd	r25, Y+2	; 0x02
-  ea:	98 13       	cpse	r25, r24
-  ec:	06 c0       	rjmp	.+12     	; 0xfa <motorControl+0x3a>
-  ee:	18 ba       	out	0x18, r1	; 24
-  f0:	82 e0       	ldi	r24, 0x02	; 2
-  f2:	85 bb       	out	0x15, r24	; 21
-  f4:	83 e8       	ldi	r24, 0x83	; 131
-  f6:	82 bb       	out	0x12, r24	; 18
-  f8:	1d c0       	rjmp	.+58     	; 0x134 <motorControl+0x74>
-  fa:	9b 81       	ldd	r25, Y+3	; 0x03
-  fc:	98 13       	cpse	r25, r24
-  fe:	06 c0       	rjmp	.+12     	; 0x10c <motorControl+0x4c>
- 100:	81 e0       	ldi	r24, 0x01	; 1
- 102:	85 bb       	out	0x15, r24	; 21
- 104:	18 ba       	out	0x18, r1	; 24
- 106:	83 e0       	ldi	r24, 0x03	; 3
- 108:	82 bb       	out	0x12, r24	; 18
- 10a:	14 c0       	rjmp	.+40     	; 0x134 <motorControl+0x74>
- 10c:	9c 81       	ldd	r25, Y+4	; 0x04
- 10e:	98 13       	cpse	r25, r24
- 110:	06 c0       	rjmp	.+12     	; 0x11e <motorControl+0x5e>
- 112:	88 e0       	ldi	r24, 0x08	; 8
- 114:	88 bb       	out	0x18, r24	; 24
- 116:	15 ba       	out	0x15, r1	; 21
- 118:	83 e0       	ldi	r24, 0x03	; 3
- 11a:	82 bb       	out	0x12, r24	; 18
- 11c:	0b c0       	rjmp	.+22     	; 0x134 <motorControl+0x74>
- 11e:	9d 81       	ldd	r25, Y+5	; 0x05
- 120:	98 13       	cpse	r25, r24
- 122:	05 c0       	rjmp	.+10     	; 0x12e <motorControl+0x6e>
- 124:	15 ba       	out	0x15, r1	; 21
- 126:	18 ba       	out	0x18, r1	; 24
- 128:	83 e0       	ldi	r24, 0x03	; 3
- 12a:	82 bb       	out	0x12, r24	; 18
- 12c:	03 c0       	rjmp	.+6      	; 0x134 <motorControl+0x74>
- 12e:	15 ba       	out	0x15, r1	; 21
- 130:	83 e0       	ldi	r24, 0x03	; 3
- 132:	82 bb       	out	0x12, r24	; 18
- 134:	0f 90       	pop	r0
- 136:	0f 90       	pop	r0
- 138:	0f 90       	pop	r0
- 13a:	0f 90       	pop	r0
- 13c:	0f 90       	pop	r0
- 13e:	df 91       	pop	r29
- 140:	cf 91       	pop	r28
- 142:	08 95       	ret
+000000da <motorControl>:
+  da:	cf 93       	push	r28
+  dc:	df 93       	push	r29
+  de:	00 d0       	rcall	.+0      	; 0xe0 <motorControl+0x6>
+  e0:	00 d0       	rcall	.+0      	; 0xe2 <motorControl+0x8>
+  e2:	1f 92       	push	r1
+  e4:	cd b7       	in	r28, 0x3d	; 61
+  e6:	de b7       	in	r29, 0x3e	; 62
+  e8:	3a 83       	std	Y+2, r19	; 0x02
+  ea:	4b 83       	std	Y+3, r20	; 0x03
+  ec:	5c 83       	std	Y+4, r21	; 0x04
+  ee:	6d 83       	std	Y+5, r22	; 0x05
+  f0:	28 13       	cpse	r18, r24
+  f2:	07 c0       	rjmp	.+14     	; 0x102 <motorControl+0x28>
+  f4:	88 e0       	ldi	r24, 0x08	; 8
+  f6:	88 bb       	out	0x18, r24	; 24
+  f8:	81 e0       	ldi	r24, 0x01	; 1
+  fa:	85 bb       	out	0x15, r24	; 21
+  fc:	83 e0       	ldi	r24, 0x03	; 3
+  fe:	82 bb       	out	0x12, r24	; 18
+ 100:	27 c0       	rjmp	.+78     	; 0x150 <motorControl+0x76>
+ 102:	9a 81       	ldd	r25, Y+2	; 0x02
+ 104:	98 13       	cpse	r25, r24
+ 106:	06 c0       	rjmp	.+12     	; 0x114 <motorControl+0x3a>
+ 108:	18 ba       	out	0x18, r1	; 24
+ 10a:	82 e0       	ldi	r24, 0x02	; 2
+ 10c:	85 bb       	out	0x15, r24	; 21
+ 10e:	83 e8       	ldi	r24, 0x83	; 131
+ 110:	82 bb       	out	0x12, r24	; 18
+ 112:	1e c0       	rjmp	.+60     	; 0x150 <motorControl+0x76>
+ 114:	9b 81       	ldd	r25, Y+3	; 0x03
+ 116:	98 13       	cpse	r25, r24
+ 118:	06 c0       	rjmp	.+12     	; 0x126 <motorControl+0x4c>
+ 11a:	81 e0       	ldi	r24, 0x01	; 1
+ 11c:	85 bb       	out	0x15, r24	; 21
+ 11e:	18 ba       	out	0x18, r1	; 24
+ 120:	83 e0       	ldi	r24, 0x03	; 3
+ 122:	82 bb       	out	0x12, r24	; 18
+ 124:	15 c0       	rjmp	.+42     	; 0x150 <motorControl+0x76>
+ 126:	9c 81       	ldd	r25, Y+4	; 0x04
+ 128:	98 13       	cpse	r25, r24
+ 12a:	06 c0       	rjmp	.+12     	; 0x138 <motorControl+0x5e>
+ 12c:	88 e0       	ldi	r24, 0x08	; 8
+ 12e:	88 bb       	out	0x18, r24	; 24
+ 130:	15 ba       	out	0x15, r1	; 21
+ 132:	83 e0       	ldi	r24, 0x03	; 3
+ 134:	82 bb       	out	0x12, r24	; 18
+ 136:	0c c0       	rjmp	.+24     	; 0x150 <motorControl+0x76>
+ 138:	9d 81       	ldd	r25, Y+5	; 0x05
+ 13a:	98 13       	cpse	r25, r24
+ 13c:	05 c0       	rjmp	.+10     	; 0x148 <motorControl+0x6e>
+ 13e:	15 ba       	out	0x15, r1	; 21
+ 140:	18 ba       	out	0x18, r1	; 24
+ 142:	83 e0       	ldi	r24, 0x03	; 3
+ 144:	82 bb       	out	0x12, r24	; 18
+ 146:	04 c0       	rjmp	.+8      	; 0x150 <motorControl+0x76>
+ 148:	15 ba       	out	0x15, r1	; 21
+ 14a:	18 ba       	out	0x18, r1	; 24
+ 14c:	83 e0       	ldi	r24, 0x03	; 3
+ 14e:	82 bb       	out	0x12, r24	; 18
+ 150:	0f 90       	pop	r0
+ 152:	0f 90       	pop	r0
+ 154:	0f 90       	pop	r0
+ 156:	0f 90       	pop	r0
+ 158:	0f 90       	pop	r0
+ 15a:	df 91       	pop	r29
+ 15c:	cf 91       	pop	r28
+ 15e:	08 95       	ret
 
-00000144 <setup>:
+00000160 <setup>:
 #include "pushButton.h"
 
 void setup(void)
 {
 	/* DDRx (Data Direction Register) Configures data direction of port pins */ 
 	DDRB |= (1<<DDB3)|(1<<DDB1); // 0b00001000 Make pin 3 of Port B an output pin. Pin 0 and pin 1 kept as inputs for buttons.  
- 144:	87 b3       	in	r24, 0x17	; 23
- 146:	8a 60       	ori	r24, 0x0A	; 10
- 148:	87 bb       	out	0x17, r24	; 23
+ 160:	87 b3       	in	r24, 0x17	; 23
+ 162:	8a 60       	ori	r24, 0x0A	; 10
+ 164:	87 bb       	out	0x17, r24	; 23
 	DDRC |= (1<<DDC0)|(1<<DDC1); // 0b00000011 Make pin 0 and pin 1 of Port C an output pin
- 14a:	84 b3       	in	r24, 0x14	; 20
- 14c:	83 60       	ori	r24, 0x03	; 3
- 14e:	84 bb       	out	0x14, r24	; 20
+ 166:	84 b3       	in	r24, 0x14	; 20
+ 168:	83 60       	ori	r24, 0x03	; 3
+ 16a:	84 bb       	out	0x14, r24	; 20
 	DDRD |= (1<<DDD1)|(1<<DDD7); // 0b10000011 Make pin 7 (motor), pin 1 (TX) of Port D, pin0 (RX) is an input pin so leave alone
- 150:	81 b3       	in	r24, 0x11	; 17
- 152:	82 68       	ori	r24, 0x82	; 130
- 154:	81 bb       	out	0x11, r24	; 17
+ 16c:	81 b3       	in	r24, 0x11	; 17
+ 16e:	82 68       	ori	r24, 0x82	; 130
+ 170:	81 bb       	out	0x11, r24	; 17
     /*Activate Pull-Up Resistors */ 
 	PORTD |= (1<<PD0);  // activating the pull-up resistor for the RX pin (need this set for Serial Comm.... otherwise cannot send rx)
- 156:	90 9a       	sbi	0x12, 0	; 18
+ 172:	90 9a       	sbi	0x12, 0	; 18
 	PORTB |= (1<<PB0); // activate pull-up resistor for pin 0 and pin 1 for buttons (pin 0 and pin 1 will be high) 
- 158:	c0 9a       	sbi	0x18, 0	; 24
+ 174:	c0 9a       	sbi	0x18, 0	; 24
 	/* Oscillator Calibration */ 
 	OSCCAL |= 0xAA; 
- 15a:	81 b7       	in	r24, 0x31	; 49
- 15c:	8a 6a       	ori	r24, 0xAA	; 170
- 15e:	81 bf       	out	0x31, r24	; 49
- 160:	08 95       	ret
+ 176:	81 b7       	in	r24, 0x31	; 49
+ 178:	8a 6a       	ori	r24, 0xAA	; 170
+ 17a:	81 bf       	out	0x31, r24	; 49
+ 17c:	08 95       	ret
 
-00000162 <main>:
+0000017e <main>:
 }
 
 int main(void)
 {
- 162:	cf 93       	push	r28
- 164:	df 93       	push	r29
- 166:	00 d0       	rcall	.+0      	; 0x168 <main+0x6>
- 168:	00 d0       	rcall	.+0      	; 0x16a <main+0x8>
- 16a:	1f 92       	push	r1
- 16c:	cd b7       	in	r28, 0x3d	; 61
- 16e:	de b7       	in	r29, 0x3e	; 62
+ 17e:	cf 93       	push	r28
+ 180:	df 93       	push	r29
+ 182:	00 d0       	rcall	.+0      	; 0x184 <main+0x6>
+ 184:	00 d0       	rcall	.+0      	; 0x186 <main+0x8>
+ 186:	1f 92       	push	r1
+ 188:	cd b7       	in	r28, 0x3d	; 61
+ 18a:	de b7       	in	r29, 0x3e	; 62
 	USARTInit(BAUD_PRESCALE); 
- 170:	67 e6       	ldi	r22, 0x67	; 103
- 172:	70 e0       	ldi	r23, 0x00	; 0
- 174:	80 e0       	ldi	r24, 0x00	; 0
- 176:	90 e0       	ldi	r25, 0x00	; 0
- 178:	0e 94 41 00 	call	0x82	; 0x82 <USARTInit>
+ 18c:	67 e6       	ldi	r22, 0x67	; 103
+ 18e:	70 e0       	ldi	r23, 0x00	; 0
+ 190:	80 e0       	ldi	r24, 0x00	; 0
+ 192:	90 e0       	ldi	r25, 0x00	; 0
+ 194:	0e 94 41 00 	call	0x82	; 0x82 <USARTInit>
 	char data; //' '; uncomment when using pushbutton 
-	
     setup();
- 17c:	0e 94 a2 00 	call	0x144	; 0x144 <setup>
+ 198:	0e 94 b0 00 	call	0x160	; 0x160 <setup>
 	USART_putstring("Hello!\r\n");	
- 180:	80 e6       	ldi	r24, 0x60	; 96
- 182:	90 e0       	ldi	r25, 0x00	; 0
- 184:	0e 94 51 00 	call	0xa2	; 0xa2 <USART_putstring>
-				USART_putstring("Stopping...\r\n");
-				motorControl(data, keyControl);
+ 19c:	80 e6       	ldi	r24, 0x60	; 96
+ 19e:	90 e0       	ldi	r25, 0x00	; 0
+ 1a0:	0e 94 4d 00 	call	0x9a	; 0x9a <USART_putstring>
+
 			}
 			else
 			{
-				motorControl(data, keyControl);
- 188:	07 e7       	ldi	r16, 0x77	; 119
- 18a:	0f 2e       	mov	r0, r31
- 18c:	f3 e7       	ldi	r31, 0x73	; 115
- 18e:	ff 2e       	mov	r15, r31
- 190:	f0 2d       	mov	r31, r0
- 192:	0f 2e       	mov	r0, r31
- 194:	f1 e6       	ldi	r31, 0x61	; 97
- 196:	df 2e       	mov	r13, r31
- 198:	f0 2d       	mov	r31, r0
- 19a:	0f 2e       	mov	r0, r31
- 19c:	f4 e6       	ldi	r31, 0x64	; 100
- 19e:	ef 2e       	mov	r14, r31
- 1a0:	f0 2d       	mov	r31, r0
- 1a2:	18 e7       	ldi	r17, 0x78	; 120
-		//_delay_ms(1000)
+				USART_putstring("Default State...\r\n");
+				motorControl(keyControl.brake, keyControl);
+ 1a4:	07 e7       	ldi	r16, 0x77	; 119
+ 1a6:	0f 2e       	mov	r0, r31
+ 1a8:	f3 e7       	ldi	r31, 0x73	; 115
+ 1aa:	ff 2e       	mov	r15, r31
+ 1ac:	f0 2d       	mov	r31, r0
+ 1ae:	0f 2e       	mov	r0, r31
+ 1b0:	f1 e6       	ldi	r31, 0x61	; 97
+ 1b2:	df 2e       	mov	r13, r31
+ 1b4:	f0 2d       	mov	r31, r0
+ 1b6:	0f 2e       	mov	r0, r31
+ 1b8:	f4 e6       	ldi	r31, 0x64	; 100
+ 1ba:	ef 2e       	mov	r14, r31
+ 1bc:	f0 2d       	mov	r31, r0
+ 1be:	18 e7       	ldi	r17, 0x78	; 120
 		
-	
+
 		if(!buttonAvl)
 		{
-			data = USARTReadChar();  // does not go to next line unless input take in
- 1a4:	0e 94 49 00 	call	0x92	; 0x92 <USARTReadChar>
+			//data = USARTReadChar();  // does not go to next line unless input take in 
+			data = USARTReadCharWithTimeout(timeOut);
+ 1c0:	60 ea       	ldi	r22, 0xA0	; 160
+ 1c2:	76 e8       	ldi	r23, 0x86	; 134
+ 1c4:	81 e0       	ldi	r24, 0x01	; 1
+ 1c6:	90 e0       	ldi	r25, 0x00	; 0
+ 1c8:	0e 94 5c 00 	call	0xb8	; 0xb8 <USARTReadCharWithTimeout>
+			
 			if (data == keyControl.forward)
- 1a8:	87 37       	cpi	r24, 0x77	; 119
- 1aa:	69 f4       	brne	.+26     	; 0x1c6 <main+0x64>
+ 1cc:	87 37       	cpi	r24, 0x77	; 119
+ 1ce:	69 f4       	brne	.+26     	; 0x1ea <main+0x6c>
 			{
 				USART_putstring("Moving Forward...\r\n");
- 1ac:	89 e6       	ldi	r24, 0x69	; 105
- 1ae:	90 e0       	ldi	r25, 0x00	; 0
- 1b0:	0e 94 51 00 	call	0xa2	; 0xa2 <USART_putstring>
+ 1d0:	89 e6       	ldi	r24, 0x69	; 105
+ 1d2:	90 e0       	ldi	r25, 0x00	; 0
+ 1d4:	0e 94 4d 00 	call	0x9a	; 0x9a <USART_putstring>
 				motorControl(data, keyControl);
- 1b4:	20 2f       	mov	r18, r16
- 1b6:	3f 2d       	mov	r19, r15
- 1b8:	4d 2d       	mov	r20, r13
- 1ba:	5e 2d       	mov	r21, r14
- 1bc:	61 2f       	mov	r22, r17
- 1be:	80 2f       	mov	r24, r16
- 1c0:	0e 94 60 00 	call	0xc0	; 0xc0 <motorControl>
- 1c4:	ef cf       	rjmp	.-34     	; 0x1a4 <main+0x42>
+ 1d8:	20 2f       	mov	r18, r16
+ 1da:	3f 2d       	mov	r19, r15
+ 1dc:	4d 2d       	mov	r20, r13
+ 1de:	5e 2d       	mov	r21, r14
+ 1e0:	61 2f       	mov	r22, r17
+ 1e2:	80 2f       	mov	r24, r16
+ 1e4:	0e 94 6d 00 	call	0xda	; 0xda <motorControl>
+ 1e8:	eb cf       	rjmp	.-42     	; 0x1c0 <main+0x42>
+	 
 			}
 			else if (data == keyControl.reverse)
- 1c6:	83 37       	cpi	r24, 0x73	; 115
- 1c8:	69 f4       	brne	.+26     	; 0x1e4 <main+0x82>
+ 1ea:	83 37       	cpi	r24, 0x73	; 115
+ 1ec:	69 f4       	brne	.+26     	; 0x208 <main+0x8a>
 			{
 				USART_putstring("Moving Reverse...\r\n");
- 1ca:	8d e7       	ldi	r24, 0x7D	; 125
- 1cc:	90 e0       	ldi	r25, 0x00	; 0
- 1ce:	0e 94 51 00 	call	0xa2	; 0xa2 <USART_putstring>
+ 1ee:	8d e7       	ldi	r24, 0x7D	; 125
+ 1f0:	90 e0       	ldi	r25, 0x00	; 0
+ 1f2:	0e 94 4d 00 	call	0x9a	; 0x9a <USART_putstring>
 				motorControl(data, keyControl);
- 1d2:	20 2f       	mov	r18, r16
- 1d4:	3f 2d       	mov	r19, r15
- 1d6:	4d 2d       	mov	r20, r13
- 1d8:	5e 2d       	mov	r21, r14
- 1da:	61 2f       	mov	r22, r17
- 1dc:	8f 2d       	mov	r24, r15
- 1de:	0e 94 60 00 	call	0xc0	; 0xc0 <motorControl>
- 1e2:	e0 cf       	rjmp	.-64     	; 0x1a4 <main+0x42>
+ 1f6:	20 2f       	mov	r18, r16
+ 1f8:	3f 2d       	mov	r19, r15
+ 1fa:	4d 2d       	mov	r20, r13
+ 1fc:	5e 2d       	mov	r21, r14
+ 1fe:	61 2f       	mov	r22, r17
+ 200:	8f 2d       	mov	r24, r15
+ 202:	0e 94 6d 00 	call	0xda	; 0xda <motorControl>
+ 206:	dc cf       	rjmp	.-72     	; 0x1c0 <main+0x42>
 			}
 			else if (data == keyControl.right)
- 1e4:	84 36       	cpi	r24, 0x64	; 100
- 1e6:	69 f4       	brne	.+26     	; 0x202 <main+0xa0>
+ 208:	84 36       	cpi	r24, 0x64	; 100
+ 20a:	69 f4       	brne	.+26     	; 0x226 <main+0xa8>
 			{
 				USART_putstring("Moving Right...\r\n");
- 1e8:	81 e9       	ldi	r24, 0x91	; 145
- 1ea:	90 e0       	ldi	r25, 0x00	; 0
- 1ec:	0e 94 51 00 	call	0xa2	; 0xa2 <USART_putstring>
+ 20c:	81 e9       	ldi	r24, 0x91	; 145
+ 20e:	90 e0       	ldi	r25, 0x00	; 0
+ 210:	0e 94 4d 00 	call	0x9a	; 0x9a <USART_putstring>
 				motorControl(data, keyControl);
- 1f0:	20 2f       	mov	r18, r16
- 1f2:	3f 2d       	mov	r19, r15
- 1f4:	4d 2d       	mov	r20, r13
- 1f6:	5e 2d       	mov	r21, r14
- 1f8:	61 2f       	mov	r22, r17
- 1fa:	8e 2d       	mov	r24, r14
- 1fc:	0e 94 60 00 	call	0xc0	; 0xc0 <motorControl>
- 200:	d1 cf       	rjmp	.-94     	; 0x1a4 <main+0x42>
+ 214:	20 2f       	mov	r18, r16
+ 216:	3f 2d       	mov	r19, r15
+ 218:	4d 2d       	mov	r20, r13
+ 21a:	5e 2d       	mov	r21, r14
+ 21c:	61 2f       	mov	r22, r17
+ 21e:	8e 2d       	mov	r24, r14
+ 220:	0e 94 6d 00 	call	0xda	; 0xda <motorControl>
+ 224:	cd cf       	rjmp	.-102    	; 0x1c0 <main+0x42>
 			}
 			else if (data == keyControl.left)
- 202:	81 36       	cpi	r24, 0x61	; 97
- 204:	69 f4       	brne	.+26     	; 0x220 <main+0xbe>
+ 226:	81 36       	cpi	r24, 0x61	; 97
+ 228:	69 f4       	brne	.+26     	; 0x244 <main+0xc6>
 			{
 				USART_putstring("Moving Left...\r\n");
- 206:	83 ea       	ldi	r24, 0xA3	; 163
- 208:	90 e0       	ldi	r25, 0x00	; 0
- 20a:	0e 94 51 00 	call	0xa2	; 0xa2 <USART_putstring>
+ 22a:	83 ea       	ldi	r24, 0xA3	; 163
+ 22c:	90 e0       	ldi	r25, 0x00	; 0
+ 22e:	0e 94 4d 00 	call	0x9a	; 0x9a <USART_putstring>
 				motorControl(data, keyControl);
- 20e:	20 2f       	mov	r18, r16
- 210:	3f 2d       	mov	r19, r15
- 212:	4d 2d       	mov	r20, r13
- 214:	5e 2d       	mov	r21, r14
- 216:	61 2f       	mov	r22, r17
- 218:	8d 2d       	mov	r24, r13
- 21a:	0e 94 60 00 	call	0xc0	; 0xc0 <motorControl>
- 21e:	c2 cf       	rjmp	.-124    	; 0x1a4 <main+0x42>
+ 232:	20 2f       	mov	r18, r16
+ 234:	3f 2d       	mov	r19, r15
+ 236:	4d 2d       	mov	r20, r13
+ 238:	5e 2d       	mov	r21, r14
+ 23a:	61 2f       	mov	r22, r17
+ 23c:	8d 2d       	mov	r24, r13
+ 23e:	0e 94 6d 00 	call	0xda	; 0xda <motorControl>
+ 242:	be cf       	rjmp	.-132    	; 0x1c0 <main+0x42>
 			}
 			else if (data == keyControl.brake)
- 220:	88 37       	cpi	r24, 0x78	; 120
- 222:	69 f4       	brne	.+26     	; 0x23e <main+0xdc>
+ 244:	88 37       	cpi	r24, 0x78	; 120
+ 246:	69 f4       	brne	.+26     	; 0x262 <main+0xe4>
 			{
 				USART_putstring("Stopping...\r\n");
- 224:	84 eb       	ldi	r24, 0xB4	; 180
- 226:	90 e0       	ldi	r25, 0x00	; 0
- 228:	0e 94 51 00 	call	0xa2	; 0xa2 <USART_putstring>
+ 248:	84 eb       	ldi	r24, 0xB4	; 180
+ 24a:	90 e0       	ldi	r25, 0x00	; 0
+ 24c:	0e 94 4d 00 	call	0x9a	; 0x9a <USART_putstring>
 				motorControl(data, keyControl);
- 22c:	20 2f       	mov	r18, r16
- 22e:	3f 2d       	mov	r19, r15
- 230:	4d 2d       	mov	r20, r13
- 232:	5e 2d       	mov	r21, r14
- 234:	61 2f       	mov	r22, r17
- 236:	81 2f       	mov	r24, r17
- 238:	0e 94 60 00 	call	0xc0	; 0xc0 <motorControl>
- 23c:	b3 cf       	rjmp	.-154    	; 0x1a4 <main+0x42>
+ 250:	20 2f       	mov	r18, r16
+ 252:	3f 2d       	mov	r19, r15
+ 254:	4d 2d       	mov	r20, r13
+ 256:	5e 2d       	mov	r21, r14
+ 258:	61 2f       	mov	r22, r17
+ 25a:	81 2f       	mov	r24, r17
+ 25c:	0e 94 6d 00 	call	0xda	; 0xda <motorControl>
+ 260:	af cf       	rjmp	.-162    	; 0x1c0 <main+0x42>
+
 			}
 			else
 			{
-				motorControl(data, keyControl);
- 23e:	20 2f       	mov	r18, r16
- 240:	3f 2d       	mov	r19, r15
- 242:	4d 2d       	mov	r20, r13
- 244:	5e 2d       	mov	r21, r14
- 246:	61 2f       	mov	r22, r17
- 248:	0e 94 60 00 	call	0xc0	; 0xc0 <motorControl>
- 24c:	ab cf       	rjmp	.-170    	; 0x1a4 <main+0x42>
+				USART_putstring("Default State...\r\n");
+ 262:	82 ec       	ldi	r24, 0xC2	; 194
+ 264:	90 e0       	ldi	r25, 0x00	; 0
+ 266:	0e 94 4d 00 	call	0x9a	; 0x9a <USART_putstring>
+				motorControl(keyControl.brake, keyControl);
+ 26a:	20 2f       	mov	r18, r16
+ 26c:	3f 2d       	mov	r19, r15
+ 26e:	4d 2d       	mov	r20, r13
+ 270:	5e 2d       	mov	r21, r14
+ 272:	61 2f       	mov	r22, r17
+ 274:	81 2f       	mov	r24, r17
+ 276:	0e 94 6d 00 	call	0xda	; 0xda <motorControl>
+ 27a:	a2 cf       	rjmp	.-188    	; 0x1c0 <main+0x42>
 
-0000024e <_exit>:
- 24e:	f8 94       	cli
+0000027c <_exit>:
+ 27c:	f8 94       	cli
 
-00000250 <__stop_program>:
- 250:	ff cf       	rjmp	.-2      	; 0x250 <__stop_program>
+0000027e <__stop_program>:
+ 27e:	ff cf       	rjmp	.-2      	; 0x27e <__stop_program>

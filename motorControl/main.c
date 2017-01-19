@@ -9,6 +9,7 @@
 #define USART_BAUDRATE 9600
 #define BAUD_PRESCALE (((F_CPU / (USART_BAUDRATE * 16UL))) - 1)
 #define buttonAvl 0
+#define timeOut 100000
 
 #include <avr/io.h>
 #include <util/delay.h>
@@ -34,14 +35,14 @@ int main(void)
 {
 	USARTInit(BAUD_PRESCALE); 
 	char data; //' '; uncomment when using pushbutton 
-	
     setup();
 	USART_putstring("Hello!\r\n");	
-
 	/* Button State */
 	uint8_t buttonWasPressed = 0;
 	uint8_t pressCount; 
 	char pressCountChar[50];
+	uint8_t counter; 
+	uint8_t lastCount;
 	
 	// Set Keys for Control 
 	keyCtrl_T keyControl; 
@@ -57,14 +58,17 @@ int main(void)
 		//PORTC = 0b00000100; // "break point" 
 		//_delay_ms(1000)
 		
-	
+
 		if(!buttonAvl)
 		{
-			data = USARTReadChar();  // does not go to next line unless input take in
+			//data = USARTReadChar();  // does not go to next line unless input take in 
+			data = USARTReadCharWithTimeout(timeOut);
+			
 			if (data == keyControl.forward)
 			{
 				USART_putstring("Moving Forward...\r\n");
 				motorControl(data, keyControl);
+	 
 			}
 			else if (data == keyControl.reverse)
 			{
@@ -85,11 +89,14 @@ int main(void)
 			{
 				USART_putstring("Stopping...\r\n");
 				motorControl(data, keyControl);
+
 			}
 			else
 			{
-				motorControl(data, keyControl);
+				USART_putstring("Default State...\r\n");
+				motorControl(keyControl.brake, keyControl);
 			}
+								
 		}
 		
 		else if (buttonAvl)	

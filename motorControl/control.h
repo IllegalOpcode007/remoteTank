@@ -64,8 +64,10 @@ void motorControl(char data, keyCtrl_T keyBoard)
 	else
 	{
 		PORTC = clcMsk;
-		//PORTB = clcMsk;
+		PORTB = clcMsk;
 		PORTD = (clcMsk|rx|tx);
 	}
 }
+
+
 
