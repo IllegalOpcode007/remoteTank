@@ -85,7 +85,6 @@ uint8_t USARTReadCharWithTimeout(uint32_t timeout) {
 		else {
 			ret = UDR; // Command received.
 		}
-		//timeout = 10; 
 		return ret;
 	}
 }

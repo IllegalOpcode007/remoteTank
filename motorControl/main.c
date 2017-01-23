@@ -8,7 +8,8 @@
 #define F_CPU 16000000UL
 #define USART_BAUDRATE 9600
 #define BAUD_PRESCALE (((F_CPU / (USART_BAUDRATE * 16UL))) - 1)
-#define buttonAvl 0
+#define buttonAvl 1
+
 #define timeOut 100000
 
 #include <avr/io.h>
@@ -29,6 +30,17 @@ void setup(void)
 	PORTB |= (1<<PB0); // activate pull-up resistor for pin 0 and pin 1 for buttons (pin 0 and pin 1 will be high) 
 	/* Oscillator Calibration */ 
 	OSCCAL |= 0xAA; 
+	
+	
+}
+
+void timerInit()
+{
+	// set up timer with no prescaling
+	TCCR1B |= (1<<CS10); // no prescalar 
+	
+	// initialize counter
+	TCNT1 = 0; 
 }
 
 int main(void)
@@ -36,13 +48,14 @@ int main(void)
 	USARTInit(BAUD_PRESCALE); 
 	char data; //' '; uncomment when using pushbutton 
     setup();
+	timerInit();
 	USART_putstring("Hello!\r\n");	
 	/* Button State */
 	uint8_t buttonWasPressed = 0;
 	uint8_t pressCount; 
 	char pressCountChar[50];
-	uint8_t counter; 
-	uint8_t lastCount;
+	char counterChar[10];
+	uint16_t counter = 0; 
 	
 	// Set Keys for Control 
 	keyCtrl_T keyControl; 
@@ -55,20 +68,25 @@ int main(void)
 /* Loop Infinitely */ 
     while (1) 
     {
+		if (TCNT1 > 10000)  // 15873
+		{
+			TCNT1 = 0; 
+			counter++;
+			if(counter > 1587){ //1000
+				counter = 0; 
+				PORTB = (1<<PB0)|(1<<PB1); // need to keep port 0 high since pulled-up for push button
+			}
+		}
 		//PORTC = 0b00000100; // "break point" 
 		//_delay_ms(1000)
-		
-
 		if(!buttonAvl)
 		{
-			//data = USARTReadChar();  // does not go to next line unless input take in 
+			//data = USARTReadChar();  // old implementation. Also, does not go to next line unless input take in 
 			data = USARTReadCharWithTimeout(timeOut);
-			
 			if (data == keyControl.forward)
 			{
 				USART_putstring("Moving Forward...\r\n");
 				motorControl(data, keyControl);
-	 
 			}
 			else if (data == keyControl.reverse)
 			{
@@ -93,10 +111,9 @@ int main(void)
 			}
 			else
 			{
-				USART_putstring("Default State...\r\n");
+				//USART_putstring("Default State...\r\n");
 				motorControl(keyControl.brake, keyControl);
-			}
-								
+			}		
 		}
 		
 		else if (buttonAvl)	
