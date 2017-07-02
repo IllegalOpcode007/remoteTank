@@ -8,7 +8,8 @@
 #define F_CPU 16000000UL
 #define USART_BAUDRATE 9600
 #define BAUD_PRESCALE (((F_CPU / (USART_BAUDRATE * 16UL))) - 1)
-#define buttonAvl 1
+#define buttonAvl 0
+//#define kAccelStep 24
 
 #define timeOut 100000
 
@@ -24,7 +25,7 @@ void setup(void)
 	/* DDRx (Data Direction Register) Configures data direction of port pins */ 
 	DDRB |= (1<<DDB3)|(1<<DDB1); // 0b00001000 Make pin 3 of Port B an output pin. Pin 0 and pin 1 kept as inputs for buttons.  
 	DDRC |= (1<<DDC0)|(1<<DDC1); // 0b00000011 Make pin 0 and pin 1 of Port C an output pin
-	DDRD |= (1<<DDD1)|(1<<DDD7); // 0b10000011 Make pin 7 (motor), pin 1 (TX) of Port D, pin0 (RX) is an input pin so leave alone
+	DDRD |= (1<<DDD1)|(1<<DDD7); // 0b10000011 Make pin 7 (motor) and pin 1 (TX) of Port D an output pin. Pin0 (RX) is an input pin so leave alone
     /*Activate Pull-Up Resistors */ 
 	PORTD |= (1<<PD0);  // activating the pull-up resistor for the RX pin (need this set for Serial Comm.... otherwise cannot send rx)
 	PORTB |= (1<<PB0); // activate pull-up resistor for pin 0 and pin 1 for buttons (pin 0 and pin 1 will be high) 
@@ -38,10 +39,11 @@ void timerInit()
 {
 	// set up timer with no prescaling
 	TCCR1B |= (1<<CS10); // no prescalar 
-	
 	// initialize counter
 	TCNT1 = 0; 
 }
+
+
 
 int main(void)
 {
@@ -55,12 +57,17 @@ int main(void)
 	uint8_t pressCount; 
 	char pressCountChar[50];
 	char counterChar[10];
+	char accelVal[6];
 	uint16_t counter = 0; 
-	
+	uint8_t leftForwAcc = OCR0; 
+	uint8_t rightForwAcc = OCR2;
+	uint8_t kAccelStep = 5; 
+	uint8_t pwmFlag = 0;
+
 	// Set Keys for Control 
 	keyCtrl_T keyControl; 
 	keyControl.forward = 'w';
-	keyControl.reverse = 's';
+	keyControl.reverse = 's'; 
 	keyControl.left = 'a';
 	keyControl.right = 'd';
 	keyControl.brake = 'x';
@@ -68,14 +75,16 @@ int main(void)
 /* Loop Infinitely */ 
     while (1) 
     {
+		// Below Testing Timers
 		if (TCNT1 > 10000)  // 15873
 		{
 			TCNT1 = 0; 
 			counter++;
 			if(counter > 1587){ //1000
 				counter = 0; 
-				PORTB = (1<<PB0)|(1<<PB1); // need to keep port 0 high since pulled-up for push button
+				PORTB |= (1<<PB0)|(1<<PB1); // need to keep port 0 high since pulled-up for push button
 			}
+			// PORTB &= ~((1<<PB0)|(1<<PB1)); trying to turn off led not sure if this works. Need to test.
 		}
 		//PORTC = 0b00000100; // "break point" 
 		//_delay_ms(1000)
@@ -84,7 +93,7 @@ int main(void)
 			//data = USARTReadChar();  // old implementation. Also, does not go to next line unless input take in 
 			data = USARTReadCharWithTimeout(timeOut);
 			if (data == keyControl.forward)
-			{
+			{	
 				USART_putstring("Moving Forward...\r\n");
 				motorControl(data, keyControl);
 			}
@@ -108,6 +117,53 @@ int main(void)
 				USART_putstring("Stopping...\r\n");
 				motorControl(data, keyControl);
 
+			}
+			else if (data == 'p')
+			{
+				TCCR0 |=(1<<WGM00)|(1<<WGM01)|(1<<COM01)|(1<<CS00); //|(1<<COM00)
+				// TCCR1A |=(1<<WGM00)|(1<<WGM01)|(1<<COM1A1)|(1<<CS00); //|(1<<COM00)	
+				// TCCR2 |=(1<<WGM20)|(1<<WGM21)|(1<<COM21)|(1<<CS20);
+				pwmFlag = 1; 
+			}
+			
+			else if (data == 'i')
+			{
+				
+				if(OCR0 < (255 - kAccelStep))
+				{
+					OCR0 += kAccelStep;
+					sprintf(accelVal, "Acceleration: %d\r\n", OCR0);
+					USART_putstring(accelVal);
+				}
+				else
+				{
+					OCR0 = 255; // full speed	
+				}
+
+			}
+			else if (data == 0 && pwmFlag == 1) // before 'k'
+			{	
+				if(OCR0 > kAccelStep)
+				{
+					OCR0 -= kAccelStep;
+					sprintf(accelVal, "Deceleration: %d\r\n", OCR0);
+					USART_putstring(accelVal);
+
+				}
+				else
+					OCR0 = 0; // Brake
+			}
+			else if (data == 'k' ) // new 'k'
+			{
+				if(OCR0 > kAccelStep)
+				{
+					OCR0 -= 2*kAccelStep;
+					sprintf(accelVal, "Deceleration: %d...\r\n", OCR0);
+					USART_putstring(accelVal);
+
+				}
+				else
+				OCR0 = 0; // Brake
 			}
 			else
 			{

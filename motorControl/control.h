@@ -5,9 +5,9 @@
  *  Author: faran
  */ 
 
-#define leftForw (1 << PB3) 
-#define rightForw (1 << PC0)
-#define leftRev (1 << PD7)
+#define leftForw (1 << PB3) // OCO 3IN
+#define rightForw (1 << PC0) // 
+#define leftRev (1 << PD7) // OC2 4IN
 #define rightRev (1 << PC1)
 #define clcMsk 0x00
 
