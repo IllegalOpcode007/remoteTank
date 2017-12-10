@@ -9,7 +9,7 @@
 #define USART_BAUDRATE 9600
 #define BAUD_PRESCALE (((F_CPU / (USART_BAUDRATE * 16UL))) - 1)
 #define buttonAvl 0
-//#define kAccelStep 24
+#define pwm 
 
 #define timeOut 100000
 
@@ -24,16 +24,24 @@ void setup(void)
 {
 	/* DDRx (Data Direction Register) Configures data direction of port pins */ 
 	DDRB |= (1<<DDB3)|(1<<DDB1); // 0b00001000 Make pin 3 of Port B an output pin. Pin 0 and pin 1 kept as inputs for buttons.  
-	DDRC |= (1<<DDC0)|(1<<DDC1); // 0b00000011 Make pin 0 and pin 1 of Port C an output pin
-	DDRD |= (1<<DDD1)|(1<<DDD7); // 0b10000011 Make pin 7 (motor) and pin 1 (TX) of Port D an output pin. Pin0 (RX) is an input pin so leave alone
+	//DDRC |= (1<<DDC0)|(1<<DDC1); // 0b00000011 Make pin 0 and pin 1 of Port C an output pin
+	DDRD |= (1<<DDD1)|(1<<DDD7)|(1<<DDD4)|(1<<DDD5); // 0b10000011 Make pin 7 (motor) and pin 1 (TX) of Port D an output pin. Pin0 (RX) is an input pin so leave alone. 
     /*Activate Pull-Up Resistors */ 
 	PORTD |= (1<<PD0);  // activating the pull-up resistor for the RX pin (need this set for Serial Comm.... otherwise cannot send rx)
 	PORTB |= (1<<PB0); // activate pull-up resistor for pin 0 and pin 1 for buttons (pin 0 and pin 1 will be high) 
+	//PORTA |= (1<<PA6)|(1<<PA7); // activate the pull-up resistor for encoders 
 	/* Oscillator Calibration */ 
 	OSCCAL |= 0xAA; 
-	
-	
 }
+
+void FourChannelPWM(void)
+{
+	TCCR0 |= (1<<WGM00)|(1<<WGM01)|(1<<COM01)|(1<<CS00); //|(1<<COM00)
+	TCCR1A |= (1<<WGM10)|(1<<COM1A1)|(1<<COM1B1); //|(1<<WGM12)|(1<<WGM13)|(1<<WGM11)| //using mode 5 Fast PWM 8-Bit TOP 0x00FF this is for OCR1A
+	TCCR1B |= (1<<WGM12)|(1<<CS10); // using mode 5 This is for OCR1B I think NOT WORKING
+	TCCR2 |=(1<<WGM20)|(1<<WGM21)|(1<<COM21)|(1<<CS20); // left backwards OC2
+}
+
 
 void timerInit()
 {
@@ -48,8 +56,11 @@ void timerInit()
 int main(void)
 {
 	USARTInit(BAUD_PRESCALE); 
-	char data; //' '; uncomment when using pushbutton 
+
     setup();
+	#ifdef pwm
+		FourChannelPWM();
+	#endif
 	timerInit();
 	USART_putstring("Hello!\r\n");	
 	/* Button State */
@@ -57,14 +68,13 @@ int main(void)
 	uint8_t pressCount; 
 	char pressCountChar[50];
 	char counterChar[10];
-	char accelVal[6];
+	char accelVal[200];
 	uint16_t counter = 0; 
-	uint8_t leftForwAcc = OCR0; 
-	uint8_t rightForwAcc = OCR2;
-	uint8_t kAccelStep = 5; 
-	uint8_t pwmFlag = 0;
-
-	// Set Keys for Control 
+	char encoderOne[8];
+	char data; //' '; uncomment when using pushbutton 
+	
+	
+	// Define Keys for Control 
 	keyCtrl_T keyControl; 
 	keyControl.forward = 'w';
 	keyControl.reverse = 's'; 
@@ -76,6 +86,7 @@ int main(void)
     while (1) 
     {
 		// Below Testing Timers
+	
 		if (TCNT1 > 10000)  // 15873
 		{
 			TCNT1 = 0; 
@@ -86,92 +97,26 @@ int main(void)
 			}
 			// PORTB &= ~((1<<PB0)|(1<<PB1)); trying to turn off led not sure if this works. Need to test.
 		}
+	 // just commented
 		//PORTC = 0b00000100; // "break point" 
 		//_delay_ms(1000)
+		
 		if(!buttonAvl)
 		{
 			//data = USARTReadChar();  // old implementation. Also, does not go to next line unless input take in 
 			data = USARTReadCharWithTimeout(timeOut);
-			if (data == keyControl.forward)
-			{	
-				USART_putstring("Moving Forward...\r\n");
-				motorControl(data, keyControl);
-			}
-			else if (data == keyControl.reverse)
-			{
-				USART_putstring("Moving Reverse...\r\n");
-				motorControl(data, keyControl);
-			}
-			else if (data == keyControl.right)
-			{
-				USART_putstring("Moving Right...\r\n");
-				motorControl(data, keyControl);
-			}
-			else if (data == keyControl.left)
-			{
-				USART_putstring("Moving Left...\r\n");
-				motorControl(data, keyControl);
-			}
-			else if (data == keyControl.brake)
-			{
-				USART_putstring("Stopping...\r\n");
-				motorControl(data, keyControl);
-
-			}
-			else if (data == 'p')
-			{
-				TCCR0 |=(1<<WGM00)|(1<<WGM01)|(1<<COM01)|(1<<CS00); //|(1<<COM00)
-				// TCCR1A |=(1<<WGM00)|(1<<WGM01)|(1<<COM1A1)|(1<<CS00); //|(1<<COM00)	
-				// TCCR2 |=(1<<WGM20)|(1<<WGM21)|(1<<COM21)|(1<<CS20);
-				pwmFlag = 1; 
-			}
+			sprintf(accelVal, "Acceleration: OCR0 %d | OCR1 %d | OCR2 %d | OCR1B %d | PINA6 %x | PINA7 %x\r\n", OCR0, OCR1A, OCR2, OCR1B, (PINA && 0b01000000), (PINA && 0x0b10000000));
+			USART_putstring(accelVal);
 			
-			else if (data == 'i')
-			{
-				
-				if(OCR0 < (255 - kAccelStep))
-				{
-					OCR0 += kAccelStep;
-					sprintf(accelVal, "Acceleration: %d\r\n", OCR0);
-					USART_putstring(accelVal);
-				}
-				else
-				{
-					OCR0 = 255; // full speed	
-				}
-
-			}
-			else if (data == 0 && pwmFlag == 1) // before 'k'
-			{	
-				if(OCR0 > kAccelStep)
-				{
-					OCR0 -= kAccelStep;
-					sprintf(accelVal, "Deceleration: %d\r\n", OCR0);
-					USART_putstring(accelVal);
-
-				}
-				else
-					OCR0 = 0; // Brake
-			}
-			else if (data == 'k' ) // new 'k'
-			{
-				if(OCR0 > kAccelStep)
-				{
-					OCR0 -= 2*kAccelStep;
-					sprintf(accelVal, "Deceleration: %d...\r\n", OCR0);
-					USART_putstring(accelVal);
-
-				}
-				else
-				OCR0 = 0; // Brake
-			}
-			else
-			{
-				//USART_putstring("Default State...\r\n");
-				motorControl(keyControl.brake, keyControl);
-			}		
+			#ifdef pwm
+			motorControlPWM(data, keyControl);
+			#endif
+			
+			#ifndef pwm
+			motorControl(data, keyControl);
+			#endif
 		}
-		
+			
 		else if (buttonAvl)	
 		{
 			if(debounce())
